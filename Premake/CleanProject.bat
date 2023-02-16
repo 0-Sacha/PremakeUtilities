@@ -1,1 +1,1 @@
-call Premake\vendor\premake5 clean
+call PremakeUtilities\vendor\premake5 clean

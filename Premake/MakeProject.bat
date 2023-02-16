@@ -1,1 +1,1 @@
-call Premake\vendor\premake5.exe gmake2
+call PremakeUtilities\vendor\premake5.exe gmake2

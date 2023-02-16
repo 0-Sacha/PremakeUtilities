@@ -1,1 +1,1 @@
-call Premake\vendor\premake5.exe gmake2 --cc=clang
+call PremakeUtilities\vendor\premake5.exe gmake2 --cc=clang

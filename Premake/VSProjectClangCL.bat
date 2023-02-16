@@ -1,1 +1,1 @@
-call Premake\vendor\premake5.exe vs2022 --cc=clang
+call PremakeUtilities\vendor\premake5.exe vs2022 --cc=clang
