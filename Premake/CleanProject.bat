@@ -1,0 +1,1 @@
+call Premake\vendor\premake5 clean
