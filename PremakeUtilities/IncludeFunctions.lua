@@ -7,27 +7,34 @@ Solution.ProjectsInfo = {}
 Solution.ProjectsInfo.Defines = {}
 Solution.ProjectsInfo.Includes = {}
 Solution.ProjectsInfo.Links = {}
+Solution.ProjectsInfo.PlatformDefineName = {}
 
-Solution.IncludeProject = function(str)
+Solution.IncludeProject = function(projectName)
+    if Solution.ProjectsInfo.PlatformDefineName ~= nil then
+        if Solution.ProjectsInfo.PlatformDefineName[projectName] ~= nil then
+            Solution.PlatformDefines(Solution.ProjectsInfo.PlatformDefineName[projectName])
+        end
+    end
+
     if Solution.ProjectsInfo.Includes ~= nil then
-        if Solution.ProjectsInfo.Includes[str] ~= nil then
-            for _, value in ipairs(Solution.ProjectsInfo.Includes[str]) do
+        if Solution.ProjectsInfo.Includes[projectName] ~= nil then
+            for _, value in ipairs(Solution.ProjectsInfo.Includes[projectName]) do
                 includedirs (value)
             end
         end
     end
 
     if Solution.ProjectsInfo.Defines ~= nil then
-        if Solution.ProjectsInfo.Defines[str] ~= nil then
-            for _, value in ipairs(Solution.ProjectsInfo.Defines[str]) do
+        if Solution.ProjectsInfo.Defines[projectName] ~= nil then
+            for _, value in ipairs(Solution.ProjectsInfo.Defines[projectName]) do
                 defines (value)
             end
         end
     end
 
     if Solution.ProjectsInfo.Links ~= nil then
-        if Solution.ProjectsInfo.Links[str] ~= nil then
-            for _, value in ipairs(Solution.ProjectsInfo.Links[str]) do
+        if Solution.ProjectsInfo.Links[projectName] ~= nil then
+            for _, value in ipairs(Solution.ProjectsInfo.Links[projectName]) do
                 links (value)
             end
         end
@@ -35,7 +42,7 @@ Solution.IncludeProject = function(str)
 end
 
 
-Solution.IncludeAndLinkProject = function(str)
-    Solution.IncludeProject(str)
-    links (str)
+Solution.IncludeAndLinkProject = function(projectName)
+    Solution.IncludeProject(projectName)
+    links (projectName)
 end

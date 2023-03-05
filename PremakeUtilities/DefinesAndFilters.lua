@@ -1,77 +1,127 @@
 DebugPremake = false
 
-filter "platforms:x86"
-    defines "ARCHITECTURE_X86"
-    architecture "x86"
-filter ""
-
-filter "platforms:Win32"
-    defines "ARCHITECTURE_X86"
-    architecture "x86"
-filter ""
-
-filter "platforms:x64"
-    defines "ARCHITECTURE_X64"
-    architecture "x64"
-filter ""
-
-
-filter "configurations:Debug"
-    defines "TARGET_DEBUG"
-    runtime "Debug"
-    optimize "Off"
-    symbols "On"
-filter ""
-
-filter "configurations:Release"
-    defines "TARGET_RELEASE"
-    runtime "Release"
-    optimize "On"
-    symbols "On"
-filter ""
-
-filter "configurations:Dist"
-    defines "TARGET_DIST"
-    runtime "Release"
-    optimize "Full"
-    symbols "Off"
-filter ""
-
-    
-filter "action:gmake2"
-    defines "COMPILER_GMAKE"
-    require("gmake2")
-filter ""
-
-filter "action:vs*"
-    defines "COMPILER_VS"
-    require("vstudio")
-    -- characterset ("MBCS")
-filter ""
-	
 Solution.Os = nil
 Solution.Compiler = nil
 
 if os.target() == "linux" then
     print("Use Platform Linux")
-    systemversion "latest"
     Solution.Os = "Linux"
 end
 
-filter "system:linux"
-    defines "PLATFORM_LINUX"
-filter ""
-
-
 if os.target() == "windows" then
     print("Use Platform Windows")
-    systemversion "latest"
     Solution.Os = "Windows"
 end
 
+Solution.PlatformDefines = function(prefix)
+    if (prefix ~= nil) then
+        prefix = prefix .. '_'
+    else
+        prefix = ""
+    end
+
+    if (DebugPremake) then
+        printf("Run PlatformDefines on %s", prefix);
+    end
+
+    filter { "platforms:x86" }
+        defines (prefix .. "ARCHITECTURE_X86")
+    filter {}
+
+    filter { "platforms:Win32" }
+        defines (prefix .. "ARCHITECTURE_X86")
+    filter {}
+
+    filter { "platforms:x64" }
+        defines (prefix .. "ARCHITECTURE_X64")
+    filter {}
+
+
+    filter { "configurations:Debug" }
+        defines (prefix .. "TARGET_DEBUG")
+    filter {}
+
+    filter { "configurations:Release" }
+        defines (prefix .. "TARGET_RELEASE")
+    filter {}
+
+    filter { "configurations:Dist" }
+        defines (prefix .. "TARGET_DIST")
+    filter {}
+
+
+    filter { "action:gmake2" }
+        defines (prefix .. "COMPILER_GMAKE")
+    filter {}
+
+    filter { "action:vs*" }
+        defines (prefix .. "COMPILER_VS")
+    filter {}
+        
+
+    filter { "system:linux" }
+        defines (prefix .. "PLATFORM_LINUX")
+    filter {}
+
+    filter { "system:windows" }
+        defines (prefix .. "PLATFORM_WINDOWS")
+    filter {}
+end
+
+filter "configurations:Debug"
+    runtime "Debug"
+    optimize "Off"
+    symbols "On"
+filter {}
+
+filter "configurations:Release"
+    runtime "Release"
+    optimize "On"
+    symbols "On"
+filter {}
+
+filter "configurations:Dist"
+    runtime "Release"
+    optimize "Full"
+    symbols "Off"
+filter {}
+
+
+filter "action:gmake2"
+    require("gmake2")
+filter {}
+
+
+filter "action:vs*"
+    require("vstudio")
+    -- characterset ("MBCS")
+filter {}
+
+
+filter "platforms:x86"
+    architecture "x86"
+filter {}
+
+filter "platforms:Win32"
+    architecture "x86"
+filter {}
+
+filter "platforms:x64"
+    architecture "x64"
+filter {}
+
+filter "platforms:Win64"
+    architecture "x64"
+filter {}
+
+
+filter "system:linux"
+    systemversion "latest"
+filter {}
+
 filter "system:windows"
-defines "PLATFORM_WINDOWS"
-filter ""
+    systemversion "latest"
+filter {}
 
 
 Solution.Premake = {}
