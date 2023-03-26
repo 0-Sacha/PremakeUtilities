@@ -18,24 +18,24 @@ Solution.IncludeProject = function(projectName)
 
     if Solution.ProjectsInfo.Includes ~= nil then
         if Solution.ProjectsInfo.Includes[projectName] ~= nil then
-            for _, value in ipairs(Solution.ProjectsInfo.Includes[projectName]) do
-                includedirs (value)
+            for _, include_path in ipairs(Solution.ProjectsInfo.Includes[projectName]) do
+                includedirs (include_path)
             end
         end
     end
 
     if Solution.ProjectsInfo.Defines ~= nil then
         if Solution.ProjectsInfo.Defines[projectName] ~= nil then
-            for _, value in ipairs(Solution.ProjectsInfo.Defines[projectName]) do
-                defines (value)
+            for _, define in ipairs(Solution.ProjectsInfo.Defines[projectName]) do
+                defines (define)
             end
         end
     end
 
     if Solution.ProjectsInfo.Links ~= nil then
         if Solution.ProjectsInfo.Links[projectName] ~= nil then
-            for _, value in ipairs(Solution.ProjectsInfo.Links[projectName]) do
-                links (value)
+            for _, project_to_link in ipairs(Solution.ProjectsInfo.Links[projectName]) do
+                links (project_to_link)
             end
         end
     end
