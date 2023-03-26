@@ -17,7 +17,15 @@ Solution.CleanMakefiles = function()
     end
 end
 
-Solution.CleanVSfiles = function()
+Solution.CleanVSCodeFiles = function()
+    if Solution.CleanVerbose == true then
+        print("rm .vscode files")
+    end
+
+    os.rmdir("./.vscode")
+end
+
+Solution.CleanVSFiles = function()
     if Solution.CleanVerbose == true then
         print("rm Solution VS files")
     end
@@ -36,6 +44,15 @@ Solution.CleanVSfiles = function()
     end
 end
 
+Solution.CleanBuildFiles = function()
+    if Solution.Premake.BaseMode == "VS" then
+        Solution.CleanVSFiles()
+    else
+        Solution.CleanVSCodeFiles()
+        Solution.CleanMakefiles()
+    end
+end
+
 Solution.CleanBin = function()
     os.rmdir("./bin")
     os.rmdir("./bin-int")
@@ -51,8 +68,7 @@ newaction {
             io.write("Clean the build... ")
         end
         Solution.CleanBin()
-        Solution.CleanVSfiles()
-        Solution.CleanMakefiles()
+        Solution.CleanBuildFiles()
         print("done.")
     end
 }

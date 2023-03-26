@@ -2,7 +2,6 @@
 json = require "json"
 
 DebugVSCodeGen = false
-AutomaticallyGenVSCodeFile = true
 
 Solution.GetVSCodePropertiesConfig = function(name)
     config = {}
@@ -28,7 +27,7 @@ Solution.GenerateVSCodeProperties = function()
     if DebugVSCodeGen == true then
         printf("Generate 'c_cpp_properties.json' : %s", jsonstr)
     end
-    fd = io.open("../../.vscode/c_cpp_properties.json", "w")
+    fd = io.open(".vscode/c_cpp_properties.json", "w")
     fd:write(jsonstr)
     fd:close()
 end
@@ -65,9 +64,10 @@ Solution.GenerateVSCodeTasks = function()
     tasks_idx = 1
 
     if Solution.Tasks ~= nil then
-        for _, task in ipairs(Solution.Tasks) do
+        for task_label, task in pairs(Solution.Tasks) do
+            printf("Add custom task : %s ", task_label)
             
-            generated_task = Solution.GetVSCodeTask(task.label, task.config, task.default)
+            generated_task = Solution.GetVSCodeTask(task_label, task.config, task.default)
             if task.default == "default" then
                 has_default_task = true
             end
@@ -100,7 +100,7 @@ Solution.GenerateVSCodeTasks = function()
     if DebugVSCodeGen == true then
         printf("Generate 'tasks.json' : %s", jsonstr)
     end
-    fd = io.open("../../.vscode/tasks.json", "w")
+    fd = io.open(".vscode/tasks.json", "w")
     fd:write(jsonstr)
     fd:close()
 end
@@ -143,7 +143,7 @@ end
 
 if Solution.VSCodeDebugTarget == nil then
     Solution.VSCodeDebugTarget = {}
-    Solution.VSCodeDebugTarget.Config = "DEBUGx64 build"
+    Solution.VSCodeDebugTarget.PreLaunchTask = "DEBUGx64 build"
     Solution.VSCodeDebugTarget.BuildCfg = "Debug"
     Solution.VSCodeDebugTarget.Platform = "x64"
 end
@@ -156,32 +156,25 @@ Solution.GenerateVSCodeLaunch = function()
     targets_dir = targets_dir:gsub("%%{cfg.buildcfg}", Solution.VSCodeDebugTarget.BuildCfg)
     targets_dir = targets_dir:gsub("%%{cfg.platform}", Solution.VSCodeDebugTarget.Platform)
 
-    file_launch = Solution.GetVSCodeDebugConfig("File Location", targets_dir .. "/${fileBasenameNoExtension}/${fileBasenameNoExtension}", Solution.VSCodeDebugTarget.Config)
+    file_launch = Solution.GetVSCodeDebugConfig("File Location", targets_dir .. "/${fileBasenameNoExtension}/${fileBasenameNoExtension}", Solution.VSCodeDebugTarget.PreLaunchTask)
 
     launch = {}
     launch.version = "0.2.0"
-    launch.configurations = { file_launch }
+    launch.configurations = {}
+
+    launch.configurations[1] = file_launch
 
     config_idx = 2
 
     if Solution.Launch ~= nil then
-        for _, config in ipairs(Solution.Launch) do
+        for config_name, config in pairs(Solution.Launch) do
+            printf("Add custom config : %s ", config_name)
             
-            generated_config = Solution.GetVSCodeDebugConfig(config.name, targets_dir .. config.project .. "/" .. config.project, Solution.VSCodeDebugTarget.Config)
-
-            launch.configurations[config_idx] = generated_task
+            generated_config = Solution.GetVSCodeDebugConfig(config_name, targets_dir .. "/" .. config.project .. "/" .. config.project, Solution.VSCodeDebugTarget.PreLaunchTask, config.args)
+            
+            launch.configurations[config_idx] = generated_config
             config_idx = config_idx + 1
         end
-    end
-
-    debug_x86 = Solution.GetVSCodeTask("DEBUGx86 build",     "debug_x86")
-    debug_x64 = Solution.GetVSCodeTask("DEBUGx64 build",     "debug_x64")
-    release_x86 = Solution.GetVSCodeTask("RELEASEx86 build", "release_x86")
-    release_x64 = nil        
-    if has_default_task == false then
-        release_x64 = Solution.GetVSCodeTask("RELEASEx64 build", "release_x64", "default")
-    else
-        release_x64 = Solution.GetVSCodeTask("RELEASEx64 build", "release_x64")
     end
 
     jsonstr = json.encode(launch)
@@ -189,7 +182,7 @@ Solution.GenerateVSCodeLaunch = function()
     if DebugVSCodeGen == true then
         printf("Generate 'launch.json' : %s", jsonstr)
     end
-    fd = io.open("../../.vscode/launch.json", "w")
+    fd = io.open(".vscode/launch.json", "w")
     fd:write(jsonstr)
     fd:close()
 end

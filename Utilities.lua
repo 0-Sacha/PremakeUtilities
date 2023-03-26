@@ -9,10 +9,6 @@ include("PremakeUtilities/Clean.lua")
 include("PremakeUtilities/Utils.lua")
 
 include("vendor/json.lua")
-include("VSCode/VSCode.lua")
+include("PremakeUtilities/VSCode.lua")
 
 include("PremakeUtilities/Handler/Handler.lua")
-
-if (Solution.Premake.BaseMode == "VS") then
-	Solution.CleanVSfiles()
-end
