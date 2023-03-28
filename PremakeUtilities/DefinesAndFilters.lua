@@ -38,15 +38,15 @@ Solution.PlatformDefines = function(prefix)
 
 
     filter { "configurations:Debug" }
-        defines (prefix .. "TARGET_DEBUG")
+        defines (prefix .. "DEBUG")
     filter {}
 
     filter { "configurations:Release" }
-        defines (prefix .. "TARGET_RELEASE")
+        defines (prefix .. "RELEASE")
     filter {}
 
     filter { "configurations:Dist" }
-        defines (prefix .. "TARGET_DIST")
+        defines (prefix .. "DIST")
     filter {}
 
 
