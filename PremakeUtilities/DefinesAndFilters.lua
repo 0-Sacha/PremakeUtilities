@@ -68,6 +68,7 @@ Solution.PlatformDefines = function(prefix)
     filter {}
 end
 
+---------- Configurations ----------
 filter "configurations:Debug"
     runtime "Debug"
     optimize "Off"
@@ -86,11 +87,10 @@ filter "configurations:Dist"
     symbols "Off"
 filter {}
 
+---------- Warnings ----------
+warnings "Default"
 
-filter "action:gmake2"
-    require("gmake2")
-filter {}
-
+---------- Other ----------
 
 filter "action:vs*"
     require("vstudio")
@@ -123,6 +123,38 @@ filter "system:windows"
     systemversion "latest"
 filter {}
 
+Solution.HighWarnings = function()
+    warnings "Everything"
+
+    filter { "action:gmake2" }
+    disablewarnings {
+        "c++98-compat",
+        "c++98-compat-pedantic",
+        "pre-c++14-compat",
+        "pre-c++17-compat",
+
+        "old-style-cast",
+        "covered-switch-default",
+        "padded",
+        "tautological-unsigned-zero-compare",
+        "tautological-type-limit-compare",
+
+        "ctad-maybe-unsupported",
+
+        "float-equal",
+
+        -- FIXME : really not sure
+        "weak-vtables",
+        "deprecated-copy-with-dtor",
+        "global-constructors",
+        "missing-variable-declarations",
+        "exit-time-destructors"
+    }
+    filter {}
+
+    filter { "action:vs*" }
+    filter {}
+end
 
 Solution.Premake = {}
 Solution.Premake.Mode = _ACTION
