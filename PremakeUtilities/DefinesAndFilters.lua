@@ -126,7 +126,7 @@ filter {}
 Solution.HighWarnings = function()
     warnings "High"
 
-    filter { "action:gmake*", "toolset:gcc" }
+    filter { "action:gmake*", "toolset:clang" }
         disablewarnings {
             "c++98-compat",
             "c++98-compat-pedantic",
