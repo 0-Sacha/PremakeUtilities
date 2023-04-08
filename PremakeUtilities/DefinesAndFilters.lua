@@ -124,35 +124,49 @@ filter "system:windows"
 filter {}
 
 Solution.HighWarnings = function()
-    warnings "Everything"
+    warnings "High"
 
-    filter { "action:gmake2" }
-    disablewarnings {
-        "c++98-compat",
-        "c++98-compat-pedantic",
-        "pre-c++14-compat",
-        "pre-c++17-compat",
+    filter { "action:gmake*", "toolset:gcc" }
+        disablewarnings {
+            "c++98-compat",
+            "c++98-compat-pedantic",
+            "pre-c++14-compat",
+            "pre-c++17-compat",
 
-        "old-style-cast",
-        "covered-switch-default",
-        "padded",
-        "tautological-unsigned-zero-compare",
-        "tautological-type-limit-compare",
+            "old-style-cast",
+            "covered-switch-default",
+            "padded",
+            "tautological-unsigned-zero-compare",
+            "tautological-type-limit-compare",
 
-        "ctad-maybe-unsupported",
+            "ctad-maybe-unsupported",
 
-        "float-equal",
+            "float-equal",
 
-        -- FIXME : really not sure
-        "weak-vtables",
-        "deprecated-copy-with-dtor",
-        "global-constructors",
-        "missing-variable-declarations",
-        "exit-time-destructors"
-    }
+            -- FIXME : really not sure
+            "weak-vtables",
+            "deprecated-copy-with-dtor",
+            "global-constructors",
+            "missing-variable-declarations",
+            "exit-time-destructors"
+        }
+    filter {}
+
+    filter { "action:gmake*", "toolset:gcc" }
+        disablewarnings {
+            "old-style-cast",
+            "padded",
+
+            "ctad-maybe-unsupported",
+
+            "float-equal",
+        }
     filter {}
 
     filter { "action:vs*" }
+        disablewarnings {
+            "4702"
+        }
     filter {}
 end
 
