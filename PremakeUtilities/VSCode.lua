@@ -170,7 +170,20 @@ Solution.GenerateVSCodeLaunch = function()
         for config_name, config in pairs(Solution.Launch) do
             printf("Add custom config : %s ", config_name)
             
-            generated_config = Solution.GetVSCodeDebugConfig(config_name, targets_dir .. "/" .. config.project .. "/" .. config.project, Solution.VSCodeDebugTarget.PreLaunchTask, config.args)
+            if (config.PreLaunchTask == nil) then
+                config.PreLaunchTask = Solution.VSCodeDebugTarget.PreLaunchTask
+            end
+
+            config_targets_dir = targets_dir;
+
+            if (config.BuildCfg ~= nil or config.Platform ~= nil) then
+                config_targets_dir = Solution.Path.TargetDirectory
+                config_targets_dir = config_targets_dir:gsub("%%{wks.location}", "${workspaceFolder}")
+                config_targets_dir = config_targets_dir:gsub("%%{cfg.buildcfg}", config.BuildCfg)
+                config_targets_dir = config_targets_dir:gsub("%%{cfg.platform}", config.Platform)
+            end
+
+            generated_config = Solution.GetVSCodeDebugConfig(config_name, config_targets_dir .. "/" .. config.project .. "/" .. config.project, config.PreLaunchTask, config.args)
             
             launch.configurations[config_idx] = generated_config
             config_idx = config_idx + 1
