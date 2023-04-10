@@ -97,7 +97,6 @@ filter "action:vs*"
     -- characterset ("MBCS")
 filter {}
 
-
 filter "platforms:x86"
     architecture "x86"
 filter {}
@@ -167,6 +166,21 @@ Solution.HighWarnings = function()
         disablewarnings {
             "4702"
         }
+    filter {}
+end
+
+-- Adress sanitizer
+if (DISABLE_ASAN == false) then
+    filter { "action:gmake*", "configurations:Debug" }
+        buildoptions { "-fno-omit-frame-pointer" }
+        buildoptions { "-fsanitize=undefined,address,leak,memory" }
+        linkoptions { "-fsanitize=undefined,address,leak,memory" }
+    filter {}
+
+    filter { "action:vs*", "configurations:Debug" }
+        buildoptions { "/fsanitize=address" }
+        linkoptions { "/fsanitize=address" }
+        flags { "fsanitize=address" }
     filter {}
 end
 
