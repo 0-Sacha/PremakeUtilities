@@ -170,19 +170,22 @@ Solution.HighWarnings = function()
 end
 
 -- Adress sanitizer
-if (DISABLE_ASAN == false) then
-    filter { "action:gmake*", "configurations:Debug" }
+if (DISABLE_ASAN == nil or DISABLE_ASAN == false) then
+    filter { "action:gmake*", "configurations:Debug", "system:linux" }
         buildoptions { "-fno-omit-frame-pointer" }
-        buildoptions { "-fsanitize=undefined,address,leak,memory" }
-        linkoptions { "-fsanitize=undefined,address,leak,memory" }
+        buildoptions { "-fsanitize=undefined,address" } -- ,leak,memory
+        linkoptions { "-fsanitize=undefined,address" } -- ,leak,memory
     filter {}
 
     filter { "action:vs*", "configurations:Debug" }
         buildoptions { "/fsanitize=address" }
         linkoptions { "/fsanitize=address" }
-        flags { "fsanitize=address" }
+        buildoptions { "/fsanitize=address" }
     filter {}
 end
+
+
+
 
 Solution.Premake = {}
 Solution.Premake.Mode = _ACTION

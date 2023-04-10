@@ -156,15 +156,17 @@ Solution.GenerateVSCodeLaunch = function()
     targets_dir = targets_dir:gsub("%%{cfg.buildcfg}", Solution.VSCodeDebugTarget.BuildCfg)
     targets_dir = targets_dir:gsub("%%{cfg.platform}", Solution.VSCodeDebugTarget.Platform)
 
-    file_launch = Solution.GetVSCodeDebugConfig("File Location", targets_dir .. "/${fileBasenameNoExtension}/${fileBasenameNoExtension}", Solution.VSCodeDebugTarget.PreLaunchTask)
-
     launch = {}
     launch.version = "0.2.0"
     launch.configurations = {}
 
-    launch.configurations[1] = file_launch
+    config_idx = 1
 
-    config_idx = 2
+    if (DISABLE_FILE_LOCATION == nil or DISABLE_FILE_LOCATION == false) then
+        file_launch = Solution.GetVSCodeDebugConfig("File Location", targets_dir .. "/${fileBasenameNoExtension}/${fileBasenameNoExtension}", Solution.VSCodeDebugTarget.PreLaunchTask)
+        launch.configurations[1] = file_launch
+        config_idx = 2
+    end
 
     if Solution.Launch ~= nil then
         for config_name, config in pairs(Solution.Launch) do
