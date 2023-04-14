@@ -1,1 +1,1 @@
-vendor/premake5 gmake2 --cc=gcc
+PremakeUtilities/vendor/premake5 gmake2 --cc=gcc
