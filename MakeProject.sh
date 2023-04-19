@@ -1,1 +1,1 @@
-vendor/premake5 gmake2
+PremakeUtilities/vendor/premake5 gmake2

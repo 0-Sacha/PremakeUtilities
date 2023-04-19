@@ -1,1 +1,1 @@
-vendor/premake5 clean
+PremakeUtilities/vendor/premake5 clean
