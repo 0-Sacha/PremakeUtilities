@@ -203,11 +203,9 @@ Solution.GenerateVSCodeLaunch = function()
 end
 
 Solution.GenerateVSCodeAllFiles = function()
-    if Solution.Premake.BaseMode == "GMAKE" then
-        Solution.GenerateVSCodeProperties()
-        Solution.GenerateVSCodeTasks()
-        Solution.GenerateVSCodeLaunch()
-    end
+    Solution.GenerateVSCodeProperties()
+    Solution.GenerateVSCodeTasks()
+    Solution.GenerateVSCodeLaunch()
 end
 
 
