@@ -70,18 +70,21 @@ end
 
 ---------- Configurations ----------
 filter "configurations:Debug"
+    staticruntime "on"
     runtime "Debug"
     optimize "Off"
     symbols "On"
 filter {}
 
 filter "configurations:Release"
+    staticruntime "on"
     runtime "Release"
     optimize "On"
     symbols "On"
 filter {}
 
 filter "configurations:Dist"
+    staticruntime "on"
     runtime "Release"
     optimize "Full"
     symbols "Off"
@@ -172,16 +175,15 @@ end
 -- Adress sanitizer
 if (ENABLE_ASAN == nil or ENABLE_ASAN == false) then
     filter { "action:gmake*", "configurations:Debug", "system:linux" }
-        buildoptions { "-fno-omit-frame-pointer" }
-        buildoptions { "-fsanitize=undefined,address" } -- ,leak,memory
-        linkoptions { "-fsanitize=undefined,address" } -- ,leak,memory
+        buildoptions { "-fno-omit-frame-pointer", "-fsanitize=undefined,address" }  -- ,leak,memory
+        linkoptions { "-fsanitize=undefined,address" }                              -- ,leak,memory
     filter {}
 
-    filter { "action:vs*", "configurations:Debug" }
-        buildoptions { "/fsanitize=address" }
-        linkoptions { "/fsanitize=address" }
-        buildoptions { "/fsanitize=address" }
-    filter {}
+    -- TODO:
+    -- filter { "action:vs*", "configurations:Debug" }
+    --     buildoptions { "/fsanitize=address" }
+    --     linkoptions { "/fsanitize=address" }
+    -- filter {}
 end
 
 
