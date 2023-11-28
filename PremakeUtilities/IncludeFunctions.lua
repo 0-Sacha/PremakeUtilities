@@ -5,7 +5,7 @@ Solution.Projects = {}
 
 Solution.ProjectsInfo = {}
 Solution.ProjectsInfo.Defines = {}
-Solution.ProjectsInfo.Includes = {}
+Solution.ProjectsInfo.IncludeDirs = {}
 Solution.ProjectsInfo.Links = {}
 Solution.ProjectsInfo.ProjectDependencies = {}
 Solution.ProjectsInfo.HeaderOnly = {}
@@ -18,9 +18,9 @@ Solution.IncludeProject = function(projectName)
         end
     end
 
-    if Solution.ProjectsInfo.Includes ~= nil then
-        if Solution.ProjectsInfo.Includes[projectName] ~= nil then
-            for _, include_path in ipairs(Solution.ProjectsInfo.Includes[projectName]) do
+    if Solution.ProjectsInfo.IncludeDirs ~= nil then
+        if Solution.ProjectsInfo.IncludeDirs[projectName] ~= nil then
+            for _, include_path in ipairs(Solution.ProjectsInfo.IncludeDirs[projectName]) do
                 includedirs (include_path)
             end
         end

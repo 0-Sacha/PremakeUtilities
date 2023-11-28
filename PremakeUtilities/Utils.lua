@@ -1,5 +1,5 @@
 
-Solution.AddCoverageOption = function()
+Solution.AddCodeCoverageOption = function()
 end
 
 AutomaticallyGenVSCodeFile = true

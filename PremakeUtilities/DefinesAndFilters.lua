@@ -170,7 +170,7 @@ Solution.HighWarnings = function()
 end
 
 -- Adress sanitizer
-if (DISABLE_ASAN == nil or DISABLE_ASAN == false) then
+if (ENABLE_ASAN == nil or ENABLE_ASAN == false) then
     filter { "action:gmake*", "configurations:Debug", "system:linux" }
         buildoptions { "-fno-omit-frame-pointer" }
         buildoptions { "-fsanitize=undefined,address" } -- ,leak,memory
