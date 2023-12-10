@@ -191,7 +191,8 @@ end
 
 Solution.Premake = {}
 Solution.Premake.Mode = _ACTION
-Solution.Premake.ScanMode = function()
+
+local function ScanMode()
     for sub_arg in string.gmatch(Solution.Premake.Mode, "gmake") do
         Solution.Premake.BaseMode = "GMAKE"
     end
@@ -199,11 +200,9 @@ Solution.Premake.ScanMode = function()
         Solution.Premake.BaseMode = "VS"
     end
 end
-Solution.Premake.ScanMode()
+ScanMode()
 
-
-Solution.Defines = {}
-Solution.Defines.OnScanOption = function(key, value)
+local function OnScanOption(key, value)
     if DebugPremake == true then
         printf("option : %s = %s", key, value)
     end
@@ -211,14 +210,12 @@ Solution.Defines.OnScanOption = function(key, value)
         Solution.Compiler = value
     end
 end
-
-Solution.Defines.OnScanArgument = function(key)
+local function OnScanArgument(key)
     if DebugPremake == true then
         printf("arg : %s", key)
     end
 end
-
-Solution.Defines.Scan = function()
+local function Scan()
     for i, arg in ipairs(_ARGV) do
         if arg:startswith("/") or arg:startswith("--") then
             key = nil
@@ -229,13 +226,13 @@ Solution.Defines.Scan = function()
             for sub_arg in string.gmatch(arg, "=.+") do
                 if value == nil then value = sub_arg end
             end
-            Solution.Defines.OnScanOption(key:sub(3, string.len(key) - 1), value:sub(2))
+            OnScanOption(key:sub(3, string.len(key) - 1), value:sub(2))
         else
-            Solution.Defines.OnScanArgument(arg)
+            OnScanArgument(arg)
         end
     end
 end
-Solution.Defines.Scan()
+Scan()
 
 if Solution.Premake.BaseMode == "VS" then
     if Solution.Compiler == "clang" then
@@ -250,4 +247,3 @@ if Solution.Compiler == nil then
 else
     printf("Use %s as compiler", Solution.Compiler)
 end
-

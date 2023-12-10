@@ -1,26 +1,70 @@
-
 json = require "json"
 
 DebugVSCodeGen = false
 
-Solution.GetVSCodePropertiesConfig = function(name)
-    config = {}
-    config.name = name
-    config.cStandard = "c17"
-    config.cppStandard = "c++20"
-    config.intelliSenseMode = "gcc-x64"
-    config.defines = {}
-    config.includePath = { "${workspaceFolder}/**" }
+if Solution.VSCodeDebugTarget == nil then
+    Solution.VSCodeDebugTarget = {}
+    Solution.VSCodeDebugTarget.PreLaunchTask = "DEBUGx64 build"
+    Solution.VSCodeDebugTarget.BuildCfg = "Debug"
+    Solution.VSCodeDebugTarget.Platform = "x64"
+end
+
+Solution.Tasks = {}
+Solution.Launch = {}
+
+local function VSCodePropertiesAdd(config, projectName)
+    if Solution.Projects[projectName].IncludeDirs ~= nil then
+        for _, include_path in ipairs(Solution.Projects[projectName].IncludeDirs) do
+            table.insert (config.includePath, Solution.Detokenize(include_path))
+        end
+    end
+    if Solution.Projects[projectName].Defines ~= nil then
+        for _, define in ipairs(Solution.Projects[projectName].Defines) do
+            table.insert (config.defines, define)
+        end
+    end
+    if Solution.Projects[projectName].ProjectDependencies ~= nil then
+        for _, projectDependencies in ipairs(Solution.Projects[projectName].ProjectDependencies) do
+            VSCodePropertiesAdd(config, projectDependencies)
+        end
+    end
+end
+
+local function GetVSCodePropertiesConfig(name)
+    configTemplate = {}
+    configTemplate.name = name
+    configTemplate.cStandard = "c17"
+    configTemplate.cppStandard = "c++20"
+    configTemplate.intelliSenseMode = "gcc-x64"
+    configTemplate.defines = {}
+    configTemplate.includePath = {}
+
+    config = Solution.TableShallowCopy(configTemplate)
+    if Solution.Projects[name] ~= nil then
+        VSCodePropertiesAdd(config, name)
+    else
+        table.insert(config.includePath, "${workspaceFolder}/**")
+    end
 
     return config
 end
 
 Solution.GenerateVSCodeProperties = function()
-    default_config = Solution.GetVSCodePropertiesConfig("default")
-
+    default_config = GetVSCodePropertiesConfig("default")
+    
     properties = {}
     properties.version = 4
     properties.configurations = { default_config }
+
+    for name, data in pairs(Solution.Projects) do
+        if data.Type == "ConsoleApp" then
+            printf("Add VSCode config for project: '%s'", name)
+            projectConfig = GetVSCodePropertiesConfig(name)
+            table.insert(properties.configurations, projectConfig)
+        else
+            -- printf("NOT Added VSCode config for project: '%s'; Type is '%s'", name, data.Type)
+        end
+    end
 
     jsonstr = json.encode(properties)
 
@@ -32,7 +76,7 @@ Solution.GenerateVSCodeProperties = function()
     fd:close()
 end
 
-Solution.GetVSCodeTask = function(label, config, default)
+local function GetVSCodeTask(label, config, default)
     task = {}
     task.type = "shell"
     task.label = label
@@ -51,11 +95,7 @@ Solution.GetVSCodeTask = function(label, config, default)
     return task
 end
 
-Solution.Tasks = {}
-
 Solution.GenerateVSCodeTasks = function()
-
-
     tasks_file = {}
     tasks_file.version = "2.0.0"
     tasks_file.tasks = {}
@@ -63,28 +103,26 @@ Solution.GenerateVSCodeTasks = function()
     has_default_task = false
     tasks_idx = 1
 
-    if Solution.Tasks ~= nil then
-        for task_label, task in pairs(Solution.Tasks) do
-            printf("Add custom task : %s ", task_label)
-            
-            generated_task = Solution.GetVSCodeTask(task_label, task.config, task.default)
-            if task.default == "default" then
-                has_default_task = true
-            end
-
-            tasks_file.tasks[tasks_idx] = generated_task
-            tasks_idx = tasks_idx + 1
+    for task_label, task in pairs(Solution.Tasks) do
+        printf("Add custom task : %s ", task_label)
+        
+        generated_task = GetVSCodeTask(task_label, task.config, task.default)
+        if task.default == "default" then
+            has_default_task = true
         end
+
+        tasks_file.tasks[tasks_idx] = generated_task
+        tasks_idx = tasks_idx + 1
     end
 
-    debug_x86 = Solution.GetVSCodeTask("DEBUGx86 build",     "debug_x86")
-    debug_x64 = Solution.GetVSCodeTask("DEBUGx64 build",     "debug_x64")
-    release_x86 = Solution.GetVSCodeTask("RELEASEx86 build", "release_x86")
-    release_x64 = nil        
+    debug_x86 = GetVSCodeTask("DEBUGx86 build",     "debug_x86")
+    debug_x64 = GetVSCodeTask("DEBUGx64 build",     "debug_x64")
+    release_x86 = GetVSCodeTask("RELEASEx86 build", "release_x86")
+    release_x64 = nil
     if has_default_task == false then
-        release_x64 = Solution.GetVSCodeTask("RELEASEx64 build", "release_x64", "default")
+        release_x64 = GetVSCodeTask("RELEASEx64 build", "release_x64", "default")
     else
-        release_x64 = Solution.GetVSCodeTask("RELEASEx64 build", "release_x64")
+        release_x64 = GetVSCodeTask("RELEASEx64 build", "release_x64")
     end
 
     tasks_file.tasks[tasks_idx] = debug_x86
@@ -105,13 +143,11 @@ Solution.GenerateVSCodeTasks = function()
     fd:close()
 end
 
-
-
 if Solution.VSCodeDBG == nil then
     Solution.VSCodeDBG = "gdb"
 end
 
-Solution.GetVSCodeDebugConfig = function(name, prgm, pre_launch_task, args)
+local function GetVSCodeDebugConfig(name, prgm, pre_launch_task, args)
     if args == nil then
         args = {}
     end
@@ -140,16 +176,6 @@ Solution.GetVSCodeDebugConfig = function(name, prgm, pre_launch_task, args)
     return config
 end
 
-
-if Solution.VSCodeDebugTarget == nil then
-    Solution.VSCodeDebugTarget = {}
-    Solution.VSCodeDebugTarget.PreLaunchTask = "DEBUGx64 build"
-    Solution.VSCodeDebugTarget.BuildCfg = "Debug"
-    Solution.VSCodeDebugTarget.Platform = "x64"
-end
-
-Solution.Launch = {}
-
 Solution.GenerateVSCodeLaunch = function()
     targets_dir = Solution.Path.TargetDirectory
     targets_dir = targets_dir:gsub("%%{wks.location}", "${workspaceFolder}")
@@ -163,33 +189,31 @@ Solution.GenerateVSCodeLaunch = function()
     config_idx = 1
 
     if (DISABLE_FILE_LOCATION == nil or DISABLE_FILE_LOCATION == false) then
-        file_launch = Solution.GetVSCodeDebugConfig("File Location", targets_dir .. "/${fileBasenameNoExtension}/${fileBasenameNoExtension}", Solution.VSCodeDebugTarget.PreLaunchTask)
+        file_launch = GetVSCodeDebugConfig("File Location", targets_dir .. "/${fileBasenameNoExtension}/${fileBasenameNoExtension}", Solution.VSCodeDebugTarget.PreLaunchTask)
         launch.configurations[1] = file_launch
         config_idx = 2
     end
 
-    if Solution.Launch ~= nil then
-        for config_name, config in pairs(Solution.Launch) do
-            printf("Add custom config : %s ", config_name)
-            
-            if (config.PreLaunchTask == nil) then
-                config.PreLaunchTask = Solution.VSCodeDebugTarget.PreLaunchTask
-            end
-
-            config_targets_dir = targets_dir;
-
-            if (config.BuildCfg ~= nil or config.Platform ~= nil) then
-                config_targets_dir = Solution.Path.TargetDirectory
-                config_targets_dir = config_targets_dir:gsub("%%{wks.location}", "${workspaceFolder}")
-                config_targets_dir = config_targets_dir:gsub("%%{cfg.buildcfg}", config.BuildCfg)
-                config_targets_dir = config_targets_dir:gsub("%%{cfg.platform}", config.Platform)
-            end
-
-            generated_config = Solution.GetVSCodeDebugConfig(config_name, config_targets_dir .. "/" .. config.project .. "/" .. config.project, config.PreLaunchTask, config.args)
-            
-            launch.configurations[config_idx] = generated_config
-            config_idx = config_idx + 1
+    for config_name, config in pairs(Solution.Launch) do
+        printf("Add custom config : %s ", config_name)
+        
+        if (config.PreLaunchTask == nil) then
+            config.PreLaunchTask = Solution.VSCodeDebugTarget.PreLaunchTask
         end
+
+        config_targets_dir = targets_dir;
+
+        if (config.BuildCfg ~= nil or config.Platform ~= nil) then
+            config_targets_dir = Solution.Path.TargetDirectory
+            config_targets_dir = config_targets_dir:gsub("%%{wks.location}", "${workspaceFolder}")
+            config_targets_dir = config_targets_dir:gsub("%%{cfg.buildcfg}", config.BuildCfg)
+            config_targets_dir = config_targets_dir:gsub("%%{cfg.platform}", config.Platform)
+        end
+
+        generated_config = GetVSCodeDebugConfig(config_name, config_targets_dir .. "/" .. config.Project .. "/" .. config.Project, config.PreLaunchTask, config.args)
+        
+        launch.configurations[config_idx] = generated_config
+        config_idx = config_idx + 1
     end
 
     jsonstr = json.encode(launch)

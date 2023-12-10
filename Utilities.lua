@@ -1,6 +1,7 @@
 
 Solution = {}
 
+include("PremakeUtilities/Tools.lua")
 include("PremakeUtilities/DefinesAndFilters.lua")
 include("PremakeUtilities/Path.lua")
 include("PremakeUtilities/IncludeFunctions.lua")

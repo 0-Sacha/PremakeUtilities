@@ -1,52 +1,57 @@
-Solution.CleanVerbose = true
+CleanVerbose = false
 
 Solution.CleanMakefiles = function()
-    if Solution.CleanVerbose == true then
+    if CleanVerbose == true then
         print("rm Solution Makefile")
     end
     
     os.remove("./Makefile")
-    if Solution.Projects ~= nil then
-        for name, path in pairs(Solution.Projects) do
-            path = path:gsub("%%{wks.location}", "")
+    for projectName, projectData in pairs(Solution.Projects) do
+        projectPath = projectData.Path:gsub("%%{wks.location}", "")
 
-            if Solution.CleanVerbose == true then
-                print("rm Makefile path : " .. path .. name .. ".make")
-            end
-    
-            os.remove("./" .. path .. "Makefile")
-            os.remove("./" .. path .. name .. ".make")
+        if CleanVerbose == true then
+            print("rm Makefile path : " .. projectPath .. projectName .. ".make")
         end
+
+        os.remove("./" .. projectPath .. "Makefile")
+        os.remove("./" .. projectPath .. projectName .. ".make")
+    end
+
+    if CleanVerbose == true then
+        print("OK: rm Solution Makefile")
     end
 end
 
 Solution.CleanVSCodeFiles = function()
-    if Solution.CleanVerbose == true then
+    if CleanVerbose == true then
         print("rm .vscode files")
     end
 
-    os.rmdir("./.vscode")
+    -- os.rmdir("./.vscode")
 end
 
 Solution.CleanVSFiles = function()
-    if Solution.CleanVerbose == true then
+    if CleanVerbose == true then
         print("rm Solution VS files")
     end
 
     os.rmdir("./.vs")
     os.remove("./" .. Solution.Name .. ".sln")
-    if Solution.Projects ~= nil then
-        for name, path in pairs(Solution.Projects) do
-            path = path:gsub("%%{wks.location}", "")
 
-            if Solution.CleanVerbose == true then
-                print("rm VS files : " .. path .. name .. ".vcxproj")
-            end
+    for projectName, projectData in pairs(Solution.Projects) do
+        projectPath = projectData.Path:gsub("%%{wks.location}/", "")
 
-            os.remove("./" .. path .. name .. ".vcxproj")
-            os.remove("./" .. path .. name .. ".vcxproj.filters")
-            os.remove("./" .. path .. name .. ".vcxproj.user")
+        if CleanVerbose == true then
+            print("rm VS files : " .. projectPath .. projectName .. ".vcxproj")
         end
+
+        os.remove("./" .. projectPath .. projectName .. ".vcxproj")
+        os.remove("./" .. projectPath .. projectName .. ".vcxproj.filters")
+        os.remove("./" .. projectPath .. projectName .. ".vcxproj.user")
+    end
+
+    if CleanVerbose == true then
+        print("OK: rm Solution VS files")
     end
 end
 
@@ -65,7 +70,7 @@ newaction {
     trigger     = "clean",
     description = "clean the software",
     execute     = function ()
-        if Solution.CleanVerbose == true then
+        if CleanVerbose == true then
             print("Clean the build... ")
         else
             io.write("Clean the build... ")

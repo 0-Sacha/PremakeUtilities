@@ -3,70 +3,73 @@ Solution.Name = ""
 
 Solution.Projects = {}
 
-Solution.ProjectsInfo = {}
-Solution.ProjectsInfo.Defines = {}
-Solution.ProjectsInfo.IncludeDirs = {}
-Solution.ProjectsInfo.Links = {}
-Solution.ProjectsInfo.ProjectDependencies = {}
-Solution.ProjectsInfo.HeaderOnly = {}
-Solution.ProjectsInfo.PlatformDefineName = {}
+local ProjectTemplate = {}
+ProjectTemplate.Path = nil
+ProjectTemplate.HeaderOnly = false
+ProjectTemplate.Type = "ConsoleApp"
+ProjectTemplate.PlatformDefineName = nil
+ProjectTemplate.Defines = {}
+ProjectTemplate.IncludeDirs = {}
+ProjectTemplate.Links = {}
+ProjectTemplate.ProjectDependencies = {}
 
-Solution.IncludeProject = function(projectName)
-    if Solution.ProjectsInfo.PlatformDefineName ~= nil then
-        if Solution.ProjectsInfo.PlatformDefineName[projectName] ~= nil then
-            Solution.PlatformDefines(Solution.ProjectsInfo.PlatformDefineName[projectName])
+Solution.AddProject = function(name, path)
+    Solution.Projects[name] = Solution.TableShallowCopy(ProjectTemplate)
+    Solution.Projects[name].Path = path
+end
+
+Solution.PremakeIncludeProject = function(name)
+    include (Solution.Projects[name].Path)
+end
+
+Solution._IncludeProject = function(projectName)
+    data = Solution.Projects[projectName]
+    if data == nil then
+        printf("NOT a Valid Project: '%s' !!", projectName)
+        return
+    end
+    
+    if data.PlatformDefineName ~= nil then
+        Solution.PlatformDefines(data.PlatformDefineName)
+    end
+
+    if data.IncludeDirs ~= nil then
+        for _, include_path in ipairs(data.IncludeDirs) do
+            includedirs (include_path)
         end
     end
 
-    if Solution.ProjectsInfo.IncludeDirs ~= nil then
-        if Solution.ProjectsInfo.IncludeDirs[projectName] ~= nil then
-            for _, include_path in ipairs(Solution.ProjectsInfo.IncludeDirs[projectName]) do
-                includedirs (include_path)
-            end
+    if data.Defines ~= nil then
+        for _, define in ipairs(data.Defines) do
+            defines (define)
         end
     end
 
-    if Solution.ProjectsInfo.Defines ~= nil then
-        if Solution.ProjectsInfo.Defines[projectName] ~= nil then
-            for _, define in ipairs(Solution.ProjectsInfo.Defines[projectName]) do
-                defines (define)
-            end
+    if data.Links ~= nil then
+        for _, project_to_link in ipairs(data.Links) do
+            printf("Using the Solution.Projects.Links is weird '%s'", project_to_link)
+            links (project_to_link)
         end
     end
 
-    if Solution.ProjectsInfo.Links ~= nil then
-        if Solution.ProjectsInfo.Links[projectName] ~= nil then
-            for _, project_to_link in ipairs(Solution.ProjectsInfo.Links[projectName]) do
-                links (project_to_link)
-            end
-        end
-    end
-
-    if Solution.ProjectsInfo.Links ~= nil then
-        if Solution.ProjectsInfo.Links[projectName] ~= nil then
-            for _, project_to_link in ipairs(Solution.ProjectsInfo.Links[projectName]) do
-                printf("Using the Solution.ProjectsInfo.Links is weird '%s'", project_to_link)
-                links (project_to_link)
-            end
-        end
-    end
-
-    if Solution.ProjectsInfo.ProjectDependencies ~= nil then
-        if Solution.ProjectsInfo.ProjectDependencies[projectName] ~= nil then
-            for _, project_dependencies in ipairs(Solution.ProjectsInfo.ProjectDependencies[projectName]) do
-                printf("Recusivelly add dependencies of '%s' -> '%s'", projectName, project_dependencies)
-                Solution.IncludeAndLinkProject(project_dependencies)
-            end
+    if data.ProjectDependencies ~= nil then
+        for _, projectDependencies in ipairs(data.ProjectDependencies) do
+            printf("Recursively add dependencies of '%s' -> '%s'", projectName, projectDependencies)
+            Solution._IncludeAndLinkProject(projectDependencies)
         end
     end
 end
 
 
-Solution.IncludeAndLinkProject = function(projectName)
-    Solution.IncludeProject(projectName)
+Solution._IncludeAndLinkProject = function(projectName)
+    Solution._IncludeProject(projectName)
 
-    if Solution.ProjectsInfo.HeaderOnly ~= nil then
-        if Solution.ProjectsInfo.HeaderOnly[projectName] == nil or Solution.ProjectsInfo.HeaderOnly[projectName] ~= true then
+    data = Solution.Projects[projectName]
+    if data == nil then
+        return
+    end
+    if data.HeaderOnly ~= nil then
+        if data.HeaderOnly ~= true then
             links (projectName)
         end
     end
@@ -74,5 +77,5 @@ end
 
 Solution.Project = function(prefix)
 	includedirs { "." }
-	Solution.IncludeProject(prefix)
+	Solution._IncludeProject(prefix)
 end

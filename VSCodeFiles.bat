@@ -1,0 +1,1 @@
+call PremakeUtilities\vendor\premake5.exe vscode
