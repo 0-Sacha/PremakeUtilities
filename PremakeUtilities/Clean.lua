@@ -27,7 +27,7 @@ Solution.CleanVSCodeFiles = function()
         print("rm .vscode files")
     end
 
-    -- os.rmdir("./.vscode")
+    os.rmdir("./.vscode")
 end
 
 Solution.CleanVSFiles = function()
