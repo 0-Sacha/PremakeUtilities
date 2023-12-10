@@ -177,10 +177,7 @@ local function GetVSCodeDebugConfig(name, prgm, pre_launch_task, args)
 end
 
 Solution.GenerateVSCodeLaunch = function()
-    targets_dir = Solution.Path.TargetDirectory
-    targets_dir = targets_dir:gsub("%%{wks.location}", "${workspaceFolder}")
-    targets_dir = targets_dir:gsub("%%{cfg.buildcfg}", Solution.VSCodeDebugTarget.BuildCfg)
-    targets_dir = targets_dir:gsub("%%{cfg.platform}", Solution.VSCodeDebugTarget.Platform)
+    targets_dir = Solution.Detokenize(Solution.Path.TargetDirectory, Solution.VSCodeDebugTarget.BuildCfg, Solution.VSCodeDebugTarget.Platform)
 
     launch = {}
     launch.version = "0.2.0"
@@ -204,10 +201,7 @@ Solution.GenerateVSCodeLaunch = function()
         config_targets_dir = targets_dir;
 
         if (config.BuildCfg ~= nil or config.Platform ~= nil) then
-            config_targets_dir = Solution.Path.TargetDirectory
-            config_targets_dir = config_targets_dir:gsub("%%{wks.location}", "${workspaceFolder}")
-            config_targets_dir = config_targets_dir:gsub("%%{cfg.buildcfg}", config.BuildCfg)
-            config_targets_dir = config_targets_dir:gsub("%%{cfg.platform}", config.Platform)
+            config_targets_dir = Solution.Detokenize(Solution.Path.TargetDirectory, config.BuildCfg, config.Platform)
         end
 
         generated_config = GetVSCodeDebugConfig(config_name, config_targets_dir .. "/" .. config.Project .. "/" .. config.Project, config.PreLaunchTask, config.args)

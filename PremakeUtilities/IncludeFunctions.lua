@@ -18,10 +18,6 @@ Solution.AddProject = function(name, path)
     Solution.Projects[name].Path = path
 end
 
-Solution.PremakeIncludeProject = function(name)
-    include (Solution.Projects[name].Path)
-end
-
 Solution._IncludeProject = function(projectName)
     data = Solution.Projects[projectName]
     if data == nil then
