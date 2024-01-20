@@ -15,7 +15,7 @@ Solution.Launch = {}
 local function VSCodePropertiesAdd(config, projectName)
     if Solution.Projects[projectName].IncludeDirs ~= nil then
         for _, include_path in ipairs(Solution.Projects[projectName].IncludeDirs) do
-            table.insert (config.includePath, Solution.Detokenize(include_path))
+            table.insert (config.includePath, Solution.Detokenize(include_path) .. '/**')
         end
     end
     if Solution.Projects[projectName].Defines ~= nil then
@@ -185,8 +185,15 @@ Solution.GenerateVSCodeLaunch = function()
 
     config_idx = 1
 
+    extention = ""
+
+    if Solution.Os == "Windows" then
+        extention = ".exe"
+    end
+
     if (DISABLE_FILE_LOCATION == nil or DISABLE_FILE_LOCATION == false) then
-        file_launch = GetVSCodeDebugConfig("File Location", targets_dir .. "/${fileBasenameNoExtension}/${fileBasenameNoExtension}", Solution.VSCodeDebugTarget.PreLaunchTask)
+        prgm_path = targets_dir .. "/${fileBasenameNoExtension}/${fileBasenameNoExtension}" .. extention
+        file_launch = GetVSCodeDebugConfig("File Location", prgm_path, Solution.VSCodeDebugTarget.PreLaunchTask)
         launch.configurations[1] = file_launch
         config_idx = 2
     end
@@ -204,7 +211,8 @@ Solution.GenerateVSCodeLaunch = function()
             config_targets_dir = Solution.Detokenize(Solution.Path.TargetDirectory, config.BuildCfg, config.Platform)
         end
 
-        generated_config = GetVSCodeDebugConfig(config_name, config_targets_dir .. "/" .. config.Project .. "/" .. config.Project, config.PreLaunchTask, config.args)
+        prgm_path = config_targets_dir .. "/" .. config.Project .. "/" .. config.Project .. extention
+        generated_config = GetVSCodeDebugConfig(config_name, prgm_path, config.PreLaunchTask, config.Args)
         
         launch.configurations[config_idx] = generated_config
         config_idx = config_idx + 1
