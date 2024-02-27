@@ -23,20 +23,7 @@ Solution.PlatformDefines = function(prefix)
     if (DebugPremake) then
         printf("Run PlatformDefines on %s", prefix);
     end
-
-    filter { "platforms:x86" }
-        defines (prefix .. "ARCHITECTURE_X86")
-    filter {}
-
-    filter { "platforms:Win32" }
-        defines (prefix .. "ARCHITECTURE_X86")
-    filter {}
-
-    filter { "platforms:x64" }
-        defines (prefix .. "ARCHITECTURE_X64")
-    filter {}
-
-
+    
     filter { "configurations:Debug" }
         defines (prefix .. "DEBUG")
     filter {}
@@ -48,25 +35,31 @@ Solution.PlatformDefines = function(prefix)
     filter { "configurations:Dist" }
         defines (prefix .. "DIST")
     filter {}
-
-
-    filter { "action:gmake2" }
-        defines (prefix .. "COMPILER_GMAKE")
-    filter {}
-
-    filter { "action:vs*" }
-        defines (prefix .. "COMPILER_VS")
-    filter {}
-        
-
-    filter { "system:linux" }
-        defines (prefix .. "PLATFORM_LINUX")
-    filter {}
-
-    filter { "system:windows" }
-        defines (prefix .. "PLATFORM_WINDOWS")
-    filter {}
 end
+
+filter { "platforms:x86" }
+    defines ("UTILITIES_PLATFORM_X86")
+filter {}
+filter { "platforms:x64" }
+    defines ("UTILITIES_PLATFORM_X64")
+filter {}
+filter { "platforms:arm" }
+    defines ("UTILITIES_PLATFORM_ARM")
+filter {}        
+
+filter { "system:linux" }
+    defines ("UTILITIES_SYSTEM_LINUX")
+filter {}
+filter { "system:windows" }
+    defines ("UTILITIES_SYSTEM_WINDOWS")
+filter {}
+
+filter { "action:gmake2" }
+    defines ("UTILITIES_COMPILER_GMAKE")
+filter {}
+filter { "action:vs*" }
+    defines ("UTILITIES_COMPILER_VS")
+filter {}
 
 ---------- Configurations ----------
 filter "configurations:Debug"
@@ -100,11 +93,8 @@ filter "action:vs*"
     -- characterset ("MBCS")
 filter {}
 
-filter "platforms:x86"
-    architecture "x86"
-filter {}
 
-filter "platforms:Win32"
+filter "platforms:x86"
     architecture "x86"
 filter {}
 
@@ -112,8 +102,8 @@ filter "platforms:x64"
     architecture "x64"
 filter {}
 
-filter "platforms:Win64"
-    architecture "x64"
+filter "platforms:arm"
+    architecture "arm"
 filter {}
 
 
